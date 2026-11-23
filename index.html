@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadia Box 💌</title>
+<style>
+:root{--red:#b3202b;--dark:#8a1620;--paper:#fbf7f2;--pink:#ffd6e3}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;background:#d9c3a5;font-family:"Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px;color:#333}
+h1{font-size:1.1rem;margin:6px 0 12px;color:var(--dark);text-align:center}
+.card{width:min(94vw,420px);position:relative}
+/* envelope closed */
+#closed{background:var(--red);border-radius:6px;aspect-ratio:3/2;position:relative;cursor:pointer;box-shadow:0 8px 20px #0004;overflow:hidden}
+#closed::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49%,#0002 50%) 0 0/50% 100% no-repeat,linear-gradient(to bottom left,transparent 49%,#0002 50%) 100% 0/50% 100% no-repeat}
+#closed .flap{position:absolute;top:0;left:0;right:0;height:60%;background:#c42a36;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .8s}
+#closed .tap{position:absolute;bottom:12px;width:100%;text-align:center;color:#fff;font-weight:600;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.4}}
+#closed.open .flap{transform:rotateX(180deg)}
+/* opened card */
+#open{display:none;background:var(--red);border-radius:8px;padding:10px;box-shadow:0 8px 20px #0004}
+#open.show{display:block;animation:fade .8s}
+@keyframes fade{from{opacity:0;transform:scale(.9)}}
+.top{background:#d9c3a5;clip-path:polygon(0 100%,50% 0,100% 100%);height:60px;margin:-10px -10px 0;background:var(--dark)}
+.row{display:flex;gap:8px;margin-top:10px}
+.cell{flex:1;background:var(--paper);border-radius:4px;padding:8px;min-height:130px;position:relative}
+.cell.red{background:transparent}
+.polaroid{background:#fff;padding:6px 6px 22px;box-shadow:0 2px 6px #0003;text-align:center;font-size:.7rem;position:relative}
+.polaroid img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#ccc}
+.polaroid span{position:absolute;bottom:3px;left:0;right:0;font-family:cursive;color:#555}
+.frame{border:5px solid #f1e3ea;border-radius:12px;box-shadow:0 0 0 2px #e6c3d3;overflow:hidden}
+.frame img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#ccc}
+.film{margin-top:10px;background:#111;border-radius:8px;padding:4px 0;border:3px solid #d4af37;box-shadow:0 0 12px #d4af3799;position:relative}
+.film .holes{height:14px;background:repeating-linear-gradient(90deg,transparent 0 6px,#f5f0e1 6px 14px,transparent 14px 22px);background-size:22px 8px;background-repeat:repeat-x;background-position:0 3px}
+.film video{width:100%;display:block;max-height:280px;background:#000;margin:3px 0}
+.film .cap{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#d4af37;color:#111;font-size:.7rem;font-weight:700;padding:1px 10px;border-radius:10px}
+/* calendar */
+.cal h3{text-align:center;letter-spacing:2px;font-size:.95rem;margin-bottom:6px}
+.msg{font-family:cursive;font-size:.85rem;line-height:1.5;color:#444}
+.stickers{font-size:1.4rem;text-align:center;margin-top:4px}
+/* pull strip */
+.stack{position:relative;height:250px;margin-top:10px}
+.pc{position:absolute;top:0;left:0;width:46%;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .5s;opacity:0;transform:translateX(0)}
+.pc.in{opacity:1}
+.tab{position:absolute;right:0;top:20px;width:54px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:50}
+.tab b{writing-mode:vertical-rl;font-size:.7rem;background:#fff;padding:4px 2px;border-radius:3px}
+.tab button{width:46px;height:30px;border-radius:15px;border:0;background:var(--red);box-shadow:0 0 0 3px #fff;color:#fff;font-size:1rem;cursor:pointer;touch-action:manipulation}
+/* small envelope */
+.env{position:relative;width:100%;aspect-ratio:4/3;cursor:pointer;margin-top:8px}
+.env .body{position:absolute;inset:25% 0 0;background:#f4eef0;border-radius:3px;box-shadow:0 2px 6px #0003}
+.env .fl{position:absolute;top:0;left:0;right:0;height:55%;background:#fff;clip-path:polygon(0 45%,50% 100%,100% 45%,100% 100%,0 100%);opacity:0}
+.env .top2{position:absolute;top:0;left:0;right:0;height:50%;background:#fff;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .6s;margin-top:25%;z-index:3}
+.env.open .top2{transform:rotateX(180deg) translateY(0);z-index:0}
+.letter{position:absolute;left:8%;right:8%;bottom:8%;height:70%;background:linear-gradient(#ffe3ec,#ffc9da);border-radius:4px;padding:4px;transition:transform .8s .3s;z-index:1;overflow:hidden;color:#6b2740}
+.env.open .letter{transform:translateY(-55%)}
+.env .front{position:absolute;inset:25% 0 0;background:#f4eef0;clip-path:polygon(0 0,50% 55%,100% 0,100% 100%,0 100%);z-index:2;border-radius:3px}
+.hint{color:#fff;font-size:.7rem;text-align:center;margin-top:4px}
+/* big letter modal */
+#modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+#modal.show{display:flex}
+#modal .l{text-align:center;background:linear-gradient(#fff0f5,#ffd0e0);max-width:380px;width:100%;padding:24px;border-radius:14px;font-family:cursive;line-height:1.7;color:#6b2740;max-height:85vh;overflow:auto;box-shadow:0 0 0 6px #fff8}
+#modal h2{text-align:center;margin-bottom:10px}
+#modal button{display:block;margin:14px auto 0;border:0;background:#e8588a;color:#fff;border-radius:20px;padding:8px 22px;font-size:1rem}
+
+.film{background:#111;border-radius:6px;padding:16px 0;position:relative;margin-top:10px;box-shadow:0 0 0 3px #fff3,0 4px 10px #0006}
+.film::before,.film::after{content:"";position:absolute;left:0;right:0;height:8px;background:repeating-linear-gradient(90deg,#fff 0 10px,transparent 10px 20px);opacity:.85}
+.film::before{top:4px}.film::after{bottom:4px}
+.film video{width:100%;display:block;background:#000;max-height:260px}
+.film small{display:block;text-align:center;color:#f7c6d4;font-size:.65rem;letter-spacing:3px;padding-top:4px}
+.bear{position:absolute;left:12%;right:12%;bottom:6%;transition:transform .8s .3s;z-index:1}
+.env.open .bear{transform:translateY(-60%)}
+</style>
+</head>
+<body>
+<h1>💌 Shadia Box</h1>
+<div class="card">
+
+  <!-- STEP 0: closed envelope -->
+  <div id="closed"><div class="flap"></div><div class="tap">Taabo si aad u furto 💌</div></div>
+
+  <!-- STEP 1: opened on all sides -->
+  <div id="open">
+    <div class="top"></div>
+
+    <div class="film">
+      <div class="holes"></div>
+      <video id="vid" src="seasonsix.mp4" controls playsinline preload="metadata"></video>
+      <div class="holes"></div>
+      <div class="cap">🎬 Season Six 🎞️</div>
+    </div>
+    <div class="row">
+      <div class="cell red">
+        <div class="hint">open me! 🧸</div>
+        <div class="env" id="env" onclick="toggleEnv()">
+          <div class="top2"></div>
+          <div class="body"></div>
+          <div class="bear"><svg viewBox="0 0 100 110" width="100%"><circle cx="22" cy="20" r="14" fill="#ff8fb3"/><circle cx="78" cy="20" r="14" fill="#ff8fb3"/><circle cx="22" cy="20" r="7" fill="#ffd0e0"/><circle cx="78" cy="20" r="7" fill="#ffd0e0"/><ellipse cx="50" cy="85" rx="28" ry="24" fill="#ff8fb3"/><circle cx="50" cy="42" r="30" fill="#ffa3c1"/><ellipse cx="50" cy="52" rx="13" ry="10" fill="#ffd9e6"/><circle cx="38" cy="38" r="4" fill="#4a1f33"/><circle cx="62" cy="38" r="4" fill="#4a1f33"/><ellipse cx="50" cy="48" rx="4" ry="3" fill="#4a1f33"/><path d="M44 56q6 5 12 0" stroke="#4a1f33" fill="none" stroke-width="2" stroke-linecap="round"/><path d="M38 78l-8-4 8-5v9zm24 0l8-4-8-5v9z" fill="#e8588a"/><circle cx="50" cy="76" r="4" fill="#e8588a"/></svg></div>
+          <div class="front"></div>
+        </div>
+        <div class="stickers">🐱😼</div>
+      </div>
+
+      <div class="cell red" style="position:relative">
+        <div class="polaroid"><img src="images/photo1.jpg" alt=""><span>Shadia ♡</span></div>
+      </div>
+    </div>
+
+    <!-- STEP 2: pull tab -->
+    <div class="stack" id="stack">
+      <div class="pc polaroid"><img src="images/photo2.jpg" alt=""><span>Xusuus 1</span></div>
+      <div class="pc polaroid"><img src="images/photo3.jpg" alt=""><span>Xusuus 2</span></div>
+      <div class="pc polaroid"><img src="images/photo4.jpg" alt=""><span>Xusuus 3</span></div>
+      <div class="pc polaroid"><img src="images/photo5.png" alt=""><span>Xusuus 4</span></div>
+      <div class="tab"><b>HERE →</b><button id="pull" aria-label="pull">⇄</button><b>PULL ↓</b></div>
+    </div>
+
+    <!-- calendar with message -->
+    <div class="cell cal" style="margin-top:10px">
+      <h3>MY BEST FRIEND 💖</h3>
+      <div class="msg" id="calmsg">
+        Shadia, saaxiibkay ugu fiican 🌸<br>
+        Waxaad tahay gabadh aad u quruxsan — dhoola cadeyntaadu waxay iftiimisaa maalinta! 😍<br>
+        Laakiin ha is qaldin, waxaad kaloo tahay gabadh hadal badan 😂 ha qoslin lakin mar walba wad qosli un🫣 🍕<br>
+        Mahadsanid saaxiibtinimadaada! 💗
+        <br><i>(Beddel qoraalkan adigoo ku qoraya index.html)</i>
+      </div>
+      <div class="stickers">🌹🌸💗</div>
+    </div>
+
+    <div class="row">
+      <div class="cell frame" style="padding:0"><img src="images/photo6.jpg" alt=""></div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3: pink letter -->
+<div id="modal" onclick="this.classList.remove('show')">
+  <div class="l" onclick="event.stopPropagation()"><div style="width:220px;height:240px;margin:auto"><svg viewBox="0 0 100 110" width="100%" height="100%"><g fill="#ff8fb8" stroke="#e0508a" stroke-width="2"><circle cx="25" cy="20" r="12"/><circle cx="75" cy="20" r="12"/><ellipse cx="50" cy="85" rx="30" ry="22"/><circle cx="22" cy="78" r="9"/><circle cx="78" cy="78" r="9"/><circle cx="50" cy="45" r="28"/></g><circle cx="25" cy="20" r="6" fill="#ffc8dc"/><circle cx="75" cy="20" r="6" fill="#ffc8dc"/><ellipse cx="50" cy="53" rx="12" ry="9" fill="#ffd6e6"/><circle cx="40" cy="40" r="3.5" fill="#6b2740"/><circle cx="60" cy="40" r="3.5" fill="#6b2740"/><ellipse cx="50" cy="49" rx="4" ry="3" fill="#6b2740"/><path d="M44 57q6 5 12 0" fill="none" stroke="#6b2740" stroke-width="2"/><circle cx="33" cy="50" r="4" fill="#ff5f9b" opacity=".4"/><circle cx="67" cy="50" r="4" fill="#ff5f9b" opacity=".4"/><path d="M38 70l12 8 12-8v10l-12-6-12 6z" fill="#e8588a"/></svg></div><button onclick="document.getElementById('modal').classList.remove('show')"> iska Xidh waxba hasi dawane😂 💗</button></div>
+</div>
+
+<script>
+const closed=document.getElementById('closed'),open_=document.getElementById('open');
+closed.onclick=()=>{closed.classList.add('open');setTimeout(()=>{closed.style.display='none';open_.classList.add('show')},700)};
+
+// Step 2: pull -> photos come out one after another
+const cards=[...document.querySelectorAll('.pc')];
+let pulled=0;
+document.getElementById('pull').onclick=()=>{
+  if(pulled<cards.length){
+    const c=cards[pulled],w=document.getElementById('stack').clientWidth;
+    c.classList.add('in');
+    const x=(pulled%2)*0+pulled*(w*0.1);
+    c.style.transform=`translateX(${x}px) rotate(${(pulled-1.5)*3}deg)`;
+    c.style.zIndex=pulled+1;
+    pulled++;
+  }else{ // reset
+    cards.forEach(c=>{c.classList.remove('in');c.style.transform='translateX(0)'});pulled=0;
+  }
+};
+
+// Step 3: small envelope opens, then big pink letter
+let envOpen=false;
+function toggleEnv(){
+  const e=document.getElementById('env');
+  if(!envOpen){e.classList.add('open');envOpen=true;
+    setTimeout(()=>document.getElementById('modal').classList.add('show'),1100)}
+  else{e.classList.remove('open');envOpen=false}
+}
+</script>
+</body>
+</html>
 
